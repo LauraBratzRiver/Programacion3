@@ -89,7 +89,7 @@ class servidorBasico(BaseHTTPRequestHandler):
         self.end_headers()
 
         #Enviar respuesta
-        self.wfile.write("Hola Chicos de Programacion III".encode())
+        self.wfile.write("Programacion III, PARCIAL II".encode())
 
     def do_POST(self):
         print("Peticion recibida")
