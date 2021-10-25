@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib as plt
 
 
-temperaturas = pd.read_csv("C:\Users\RebequitaCeles\Documents\datos.csv" , sep=";", encoding="")
+temperaturas = pd.read_csv("datos.csv" , sep=",")
 print(temperaturas)
 
 fahrenheit = temperaturas["fahrenheit"]
