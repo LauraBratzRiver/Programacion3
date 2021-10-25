@@ -32,9 +32,8 @@ historial = modelo.fit(fahrenheit, celsius, epochs=200, verbose=0)
 
 
 #hacer predicciones
-k = modelo.predict([8])
+k = modelo.predict([35])
 print(k)
-
 #Carga de datos de mnist (set de entrenamiento y de pruebas)
 dataset, metadata = tfds.load('mnist', as_supervised=True, with_info=True)
 train_dataset, test_dataset = dataset['train'], dataset['test']
@@ -79,6 +78,8 @@ model.fit(
     steps_per_epoch=math.ceil(num_train_examples/BATCHSIZE) #No sera necesario pronto
 )
 
+
+
 #Clase para definir el servidor http. Solo recibe solicitudes POST.
 class servidorBasico(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -106,7 +107,7 @@ class servidorBasico(BaseHTTPRequestHandler):
         arr = arr.reshape(1,28,28,1)
 
         #Realizar y obtener la prediccion
-        prediction_values = model.predict(arr, batch_size=1)
+        prediction_values = modelo.predict(arr, batch_size=1)
         prediction = str(np.argmax(prediction_values))
         print("Prediccion final: " + prediction)
 
@@ -120,5 +121,5 @@ class servidorBasico(BaseHTTPRequestHandler):
 #Iniciar el servidor en el puerto 8000 y escuchar por siempre
 #Si se queda colgado, en el admon de tareas buscar la tarea de python y finalizar tarea
 print("Iniciando el servidor... en el puerto 3007")
-server = HTTPServer(('localhost', ), servidorBasico)
+server = HTTPServer(('localhost', 3007 ), servidorBasico)
 server.serve_forever()
