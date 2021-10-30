@@ -87,7 +87,7 @@
             //Enviar un post con ajax hacia el puerto 8000.
             //Se envia 'pixeles', el cual es el arreglo convertido en cadena separada por comas.
             //Al regresar el resultado, lo pone en el div con id 'resultado'
-            $.post("http://localhost:3007", {pixeles: pixels.join(",")},
+            $.post("http://localhost:3000", {pixeles: pixels.join(",")},
                 function(response) {
                     console.log("Resultado: " + response);
                     $("#resultado").html(response);

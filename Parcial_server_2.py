@@ -120,6 +120,6 @@ class servidorBasico(BaseHTTPRequestHandler):
 
 #Iniciar el servidor en el puerto 8000 y escuchar por siempre
 #Si se queda colgado, en el admon de tareas buscar la tarea de python y finalizar tarea
-print("Iniciando el servidor... en el puerto 3007")
-server = HTTPServer(('localhost', 3007 ), servidorBasico)
+print("Iniciando el servidor... en el puerto 3000")
+server = HTTPServer(('localhost', 3000 ), servidorBasico)
 server.serve_forever()
