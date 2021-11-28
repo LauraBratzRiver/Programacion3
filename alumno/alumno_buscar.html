@@ -1,0 +1,70 @@
+<div id="card_buscar_alumno" class="card text-white bg-dark mb-3">
+    <div class="card-header">
+        CONSULTA DE ALUMNOS
+        
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" data-bs-target="#card_buscar_alumno" aria-label="Close"></button>
+    </div>
+    <div class="card-body">
+        <form id="frmConsultaAlumnos">
+           <table id="tblConsultaAlumnos" class="table table-dark table-hover">
+               <thead>
+                    <tr>
+                        <th colspan="4">
+                            <input class="form-control" placeholder="Buscar alumnos" type="text" 
+                                name="txtBuscarAlumnos" id="txtBuscarAlumnos" />
+                        </th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Codigo</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Telefono</th>
+                        <th></th>
+                    </tr>
+               </thead>
+               <tbody></tbody>
+           </table>
+        </form>
+    </div>
+</div>
+<script>
+    function obtenerDatosAlumno(){
+        $.get("http://localhost:3000/consulta-alumno", (resp, status)=>{
+            let tbody = $("#tblConsultaAlumnos > tbody"),
+                    filas = "";
+            tbody.find("tr").remove();
+           if (resp.data.length>0){    
+                resp.data.forEach(alumno=>{
+                filas += `
+                        <tr onClick='mostrarDatosAlumnos(${JSON.stringify(alumno)})'>
+                            <td>${alumno.codigo}</td>
+                            <td>${alumno.nombre}</td>
+                            <td>${alumno.telefono}</td>
+                            <td>
+                                <a class="btn btn-outline-danger" onClick='eliminarAlumno(${JSON.stringify(alumno)})'>Eliminar</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }else{
+                filas = `
+                    <tr>
+                        <td colspan="3">No hay alumnos para mostrar</td>
+                    </tr>
+                `;
+            }
+            tbody.append(filas);
+        }, "json");
+    }
+    $(document).ready(e=>{
+        $("#txtBuscarAlumnos").keyup(function(e){
+            let valor = $(this).val(),
+                $tblalumnos = $("#tblConsultaAlumnos > tbody > tr");
+            $tblalumnos.show();
+            let $no_encontrados = $tblalumnos.filter(function(i, fila){
+                return $(this).find("td:not(:last)").text().toLowerCase().indexOf(valor.toLowerCase())==-1;
+            });
+            $no_encontrados.hide();
+        });
+        obtenerDatosAlumno();
+    });
+</script>

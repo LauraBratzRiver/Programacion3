@@ -1,0 +1,100 @@
+<div id="card_alumno" class="card text-white bg-dark mb-3">
+    <div class="card-header">
+        REGISTRO ALUMNOS
+    
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" data-bs-target="#card_alumno" aria-label="Close"></button>
+    </div>
+    <div class="card-body">
+        <form id="frmAlumnos" data-accion="nuevo" data-idalumno="0">
+            <div class="mb-2 row">
+                <input autocomplete="off" id="txtCodigoAlumnos" required pattern="^([USIS|USLI|USLA]){4}[0-9]{6}" placeholder="Codigo" type="text" aria-label="Codigo" class="form-control">
+            </div>
+            <div class="mb-2 row">
+                <input id="txtNombreAlumnos" required pattern="[A-Za-zÑñáéíóú ]{6,65}" placeholder="Nombre" type="text" aria-label="Nombre" class="form-control">
+            </div>
+            <div class="mb-2 row">
+                <input id="txtTelefonoAlumnos" required pattern="[0-9]{4}([-| ]){1}[0-9]{4}" placeholder="Telefono" type="text" aria-label="Tels" class="form-control">
+            </div>
+            <div class="mb-2 row">
+                <button type="submit" class="btn btn-outline-primary text-white">REGISTRAR</button>
+                <button type="reset" class="btn btn-outline-warning text-white">NUEVO</button>
+                <button type="button" class="btn btn-outline-success text-white" id="btnBuscarAlumno">BUSCAR</button>
+            </div>
+            <div id="alerta" class="alert alert-success d-none" role="alert">Hola</div>
+        </form>
+    </div>
+</div>
+<script>
+    function mostrarDatosAlumnos(alumno){
+        $("#frmAlumnos")
+            .data("accion", "modificar")
+            .data("idalumno",alumno.idAlumno);
+        $("#txtCodigoAlumnos").val(alumno.codigo);
+        $("#txtNombreAlumnos").val(alumno.nombre);
+        $("#txtTelefonoAlumnos").val(alumno.telefono);
+    }
+    function limpiarFormulario(){
+        $("#frmAlumnos")
+            .data("accion", "nuevo")
+            .data("idalumno",0);
+        $("#frmAlumnos input[type=text]").val('');
+    }
+    function eliminarAlumno(alumno){
+        if(confirm(`Esta seguro de eliminar el alumno ${alumno.nombre}?`)){
+            let datos = {
+                accion : "eliminar",
+                idAlumno: alumno.idAlumno
+            };
+            $.post("http://localhost:3000/alumno", JSON.stringify(datos), (data, status)=>{
+                limpiarFormulario();
+                mostrarMsg(data.resp);
+                obtenerDatosAlumno();
+            }, "json");
+        }
+    }
+    function mostrarMsg(msg){
+        $("#alerta")
+            .text(msg)
+            .toggleClass("d-none");
+        
+        setTimeout(()=>{
+            $("#alerta").toggleClass("d-none");
+        }, 5000);
+    }
+    $(document).ready(e=>{
+        $("#btnBuscarAlumno").click(e=>{
+            e.preventDefault();
+            $.abrirVentana("alumno","buscar");
+        });
+        $("#frmAlumnos")
+            .on("reset", e=>{
+                limpiarFormulario();
+            })
+            .submit(e=>{
+            e.preventDefault();
+
+            let accion = $("#frmAlumnos").data("accion"),
+                idAlumno = $("#frmAlumnos").data("idalumno"),
+                codigo = $("#txtCodigoAlumnos").val(),
+                nombre = $("#txtNombreAlumnos").val(),
+                telefono = $("#txtTelefonoAlumnos").val(),
+                datos = {accion, idAlumno, codigo, nombre, telefono};
+
+            $.post("http://localhost:3000/alumno", JSON.stringify(datos), (data, status)=>{
+                if(data.resp.indexOf("Error")==-1){
+                    limpiarFormulario();
+                    obtenerDatosAlumno();
+
+                    $("#alerta")
+                        .removeClass("alert-danger")
+                        .addClass("alert-success");
+                }else{
+                    $("#alerta")
+                        .removeClass("alert-success")
+                        .addClass("alert-danger");
+                }
+                mostrarMsg(data.resp);
+            }, "json");
+        });
+    });
+</script>
