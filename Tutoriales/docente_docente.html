@@ -1,0 +1,124 @@
+<div id="card_docente" class="card text-white bg-dark mb-3">
+    <div class="card-header">
+        REGISTRO DOCENTES
+    
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" data-bs-target="#card_docente" aria-label="Close"></button>
+    </div>
+    <div class="card-body">
+        <form id="frmDocentes" data-accion="nuevo" data-iddocente="0">
+            <div class="mb-2 row">
+                <input autocomplete="off" id="txtCodigoDocentes" required pattern="[0-9]{3,5}" placeholder="Codigo" type="text" aria-label="Codigo" class="form-control">
+            </div>
+            <div class="mb-2 row">
+                <input id="txtNombreDocentes" required pattern="[A-Za-zÑñáéíóú ]{6,65}" placeholder="Nombre" type="text" aria-label="Nombre" class="form-control">
+            </div>
+            <div class="mb-2 row">
+                <input id="txtTelefonoDocentes" required pattern="[0-9]{4}([-| ]){1}[0-9]{4}" placeholder="Telefono" type="text" aria-label="Tels" class="form-control">
+            </div>
+            <div class="mb-2 row">
+                <select required title="Seleccione un escalafon" class="form-control" name="cboEscalafonDocentes" id="cboEscalafonDocentes"> </select>
+            </div>
+            <div class="mb-2 row">
+                <button type="submit" class="btn btn-outline-primary text-white">REGISTRAR</button>
+                <button type="reset" class="btn btn-outline-warning text-white">NUEVO</button>
+                <button type="button" class="btn btn-outline-success text-white" id="btnBuscarDocente">BUSCAR</button>
+            </div>
+            <div id="alerta" class="alert alert-success d-none" role="alert">Hola</div>
+        </form>
+    </div>
+</div>
+<script>
+    function obtenerDatosEscalafon(){
+        $.get("http://localhost:3000/consulta-escalafon", (resp, status)=>{
+            let $escalafon = $("#cboEscalafonDocentes"),
+                    filas = "<option value=''>Seleccione un escalafon</option>";
+            $escalafon.find("option").remove();
+           if (resp.data.length>0){    
+                resp.data.forEach(escalafon=>{
+                    filas += `
+                        <option value="${escalafon.idEscalafon}">${escalafon.escalafon}</option>
+                    `;
+                });
+            }else{
+                filas = `<option>No hay datos de escalafon</option>`;
+            }
+            $escalafon.append(filas);
+        }, "json");
+    }
+    function mostrarDatosDocentes(docente){
+        $("#frmDocentes")
+            .data("accion", "modificar")
+            .data("iddocente",docente.idDocente);
+        $("#txtCodigoDocentes").val(docente.codigo);
+        $("#txtNombreDocentes").val(docente.nombre);
+        $("#txtTelefonoDocentes").val(docente.telefono);
+        $("#cboEscalafonDocentes").val(docente.idEscalafon);
+    }
+    function limpiarFormulario(){
+        $("#frmDocentes")
+            .data("accion", "nuevo")
+            .data("iddocente",0);
+        $("#frmDocentes input[type=text]").val('');
+    }
+    function eliminarDocente(docente){
+        if(confirm(`Esta seguro de eliminar el docente ${docente.nombre}?`)){
+            let datos = {
+                accion : "eliminar",
+                idDocente: docente.idDocente
+            };
+            $.post("http://localhost:3000/docente", JSON.stringify(datos), (data, status)=>{
+                limpiarFormulario();
+                mostrarMsg(data.resp);
+                obtenerDatosDocente();
+            }, "json");
+        }
+    }
+    function mostrarMsg(msg){
+        $("#alerta")
+            .text(msg)
+            .toggleClass("d-none");
+        
+        setTimeout(()=>{
+            $("#alerta").toggleClass("d-none");
+        }, 5000);
+    }
+    $(document).ready(e=>{
+        obtenerDatosEscalafon();
+
+        $("#btnBuscarDocente").click(e=>{
+            e.preventDefault();
+            $.abrirVentana("docente","buscar");
+        });
+        $("#frmDocentes")
+            .on("reset", e=>{
+                limpiarFormulario();
+            })
+            .submit(e=>{
+            e.preventDefault();
+
+            let accion = $("#frmDocentes").data("accion"),
+                idDocente = $("#frmDocentes").data("iddocente"),
+                codigo = $("#txtCodigoDocentes").val(),
+                nombre = $("#txtNombreDocentes").val(),
+                telefono = $("#txtTelefonoDocentes").val(),
+                idEscalafon = $("#cboEscalafonDocentes").val(),
+                datos = {accion, idDocente, codigo, nombre, telefono, idEscalafon};
+
+            $.post("http://localhost:3000/docente", JSON.stringify(datos), (data, status)=>{
+                if(data.resp.indexOf("Error")==-1){
+                    limpiarFormulario();
+                    obtenerDatosDocente();
+
+                    $("#alerta")
+                        .removeClass("alert-danger")
+                        .addClass("alert-success");
+                }else{
+                    $("#alerta")
+                        .removeClass("alert-success")
+                        .addClass("alert-danger");
+                }
+                mostrarMsg(data.resp);
+            }, "json");
+        });
+    });
+</script>

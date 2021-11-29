@@ -1,0 +1,70 @@
+<div id="card_buscar_usuario" class="card text-white bg-dark mb-3">
+    <div class="card-header">
+        CONSULTA DE USUARIOS
+        
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" data-bs-target="#card_buscar_usuario" aria-label="Close"></button>
+    </div>
+    <div class="card-body">
+        <form id="frmConsultaUsuarios">
+           <table id="tblConsultaUsuarios" class="table table-dark table-hover">
+               <thead>
+                    <tr>
+                        <th colspan="4">
+                            <input class="form-control" placeholder="Buscar USUARIOS" type="text" 
+                                name="txtBuscarUsuarios" id="txtBuscarUsuarios" />
+                        </th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Codigo</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Telefono</th>
+                        <th></th>
+                    </tr>
+               </thead>
+               <tbody></tbody>
+           </table>
+        </form>
+    </div>
+</div>
+<script>
+    function obtenerDatosUsuarios(){
+        $.get("http://localhost:3000/consulta-usuario", (resp, status)=>{
+            let tbody = $("#tblConsultaUsuarios > tbody"),
+                    filas = "";
+            tbody.find("tr").remove();
+           if (resp.data.length>0){    
+                resp.data.forEach(usuarios=>{
+                filas += `
+                        <tr onClick='mostrarDatosUsuarios(${JSON.stringify(usuarios)})'>
+                            <td>${usuarios.codigo}</td>
+                            <td>${usuarios.nombre}</td>
+                            <td>${usuarios.telefono}</td>
+                            <td>
+                                <a class="btn btn-outline-danger" onClick='eliminarUsuarios(${JSON.stringify(usuarios)})'>Eliminar</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }else{
+                filas = `
+                    <tr>
+                        <td colspan="3">No hay usuarios para mostrar</td>
+                    </tr>
+                `;
+            }
+            tbody.append(filas);
+        }, "json");
+    }
+    $(document).ready(e=>{
+        $("#txtBuscarUsuarioss").keyup(function(e){
+            let valor = $(this).val(),
+                $tblusuarios = $("#tblConsultaUsuarios > tbody > tr");
+            $tblusuarios.show();
+            let $no_encontrados = $tblusuarios.filter(function(i, fila){
+                return $(this).find("td:not(:last)").text().toLowerCase().indexOf(valor.toLowerCase())==-1;
+            });
+            $no_encontrados.hide();
+        });
+        obtenerDatosUsuarios();
+    });
+</script>
