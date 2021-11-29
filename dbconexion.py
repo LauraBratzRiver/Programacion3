@@ -8,7 +8,7 @@ class db_conexion:
             port=3306,
             user="root",
             passwd="",
-            database="db_academica_a2"
+            database="db_agroHelping"
         )
         if self.db.is_connected():
             print("Conexion establecida")
